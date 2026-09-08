@@ -1623,9 +1623,6 @@
       .pricing-card.popular {
         transform: none !important;
       }
-
-      .reveal-left { transform: translateX(-20px) !important; }
-      .reveal-right { transform: translateX(20px) !important; }
     }
 
     /* Small Mobile Phones (max-width: 480px) */
@@ -1692,7 +1689,7 @@
     }
 
     /* ==========================================================================
-       SCROLL-REVEAL ANIMATION SYSTEM ("scrole pannumpothu text lam side la iruthu varanum")
+       SCROLL-REVEAL ANIMATION SYSTEM ("scrole pannum pothu text side la iruthu varanum animeted aa irukanum")
        ========================================================================== */
     .reveal-left,
     .reveal-right,
@@ -1700,45 +1697,30 @@
     .reveal-scale {
       opacity: 0;
       will-change: transform, opacity, filter;
-      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), 
-                  opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), 
-                  filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.75s cubic-bezier(0.16, 1, 0.3, 1), 
+                  opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), 
+                  filter 0.75s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .reveal-left {
-      transform: translateX(-70px);
-      filter: blur(8px);
+      transform: translateX(-80px);
+      filter: blur(6px);
     }
 
     .reveal-right {
-      transform: translateX(70px);
-      filter: blur(8px);
+      transform: translateX(80px);
+      filter: blur(6px);
     }
 
     .reveal-up {
       transform: translateY(45px);
-      filter: blur(6px);
+      filter: blur(5px);
     }
 
     .reveal-scale {
       transform: scale(0.92) translateY(25px);
-      filter: blur(6px);
+      filter: blur(5px);
     }
-
-    /* Active/Revealed State Triggered as Elements Scroll into View */
-    .revealed {
-      opacity: 1 !important;
-      transform: translate(0, 0) scale(1) !important;
-      filter: blur(0px) !important;
-    }
-
-    /* Stagger Delays for Sequential Flow */
-    .delay-1 { transition-delay: 0.08s !important; }
-    .delay-2 { transition-delay: 0.16s !important; }
-    .delay-3 { transition-delay: 0.24s !important; }
-    .delay-4 { transition-delay: 0.32s !important; }
-    .delay-5 { transition-delay: 0.40s !important; }
-    .delay-6 { transition-delay: 0.48s !important; }
 
     /* Mobile Safety (Eliminate horizontal scrollbar jitter) */
     @media (max-width: 768px) {
@@ -1749,6 +1731,25 @@
         transform: translateX(35px);
       }
     }
+
+    /* Active/Revealed State Triggered as Elements Scroll into View */
+    .reveal-left.revealed,
+    .reveal-right.revealed,
+    .reveal-up.revealed,
+    .reveal-scale.revealed,
+    .revealed {
+      opacity: 1 !important;
+      transform: translate3d(0, 0, 0) scale(1) !important;
+      filter: blur(0px) !important;
+    }
+
+    /* Stagger Delays for Sequential Flow */
+    .delay-1 { transition-delay: 0.08s !important; }
+    .delay-2 { transition-delay: 0.16s !important; }
+    .delay-3 { transition-delay: 0.24s !important; }
+    .delay-4 { transition-delay: 0.32s !important; }
+    .delay-5 { transition-delay: 0.40s !important; }
+    .delay-6 { transition-delay: 0.48s !important; }
 
     /* ==========================================================================
        AUTHENTICATION GATEWAY STYLES ("first login page varanum next than dashboard")
@@ -4368,6 +4369,95 @@
       }
     });
 
+    // ==========================================================================
+    // SCROLL-REVEAL SYSTEM ("scrole pannum pothu text side la iruthu varanum animeted aa irukanum")
+    // ==========================================================================
+    let scrollRevealObserver = null;
+
+    function initScrollReveal() {
+      // 1. Auto-tag key texts across sections so EVERY title, headline, and paragraph animates
+      const sections = document.querySelectorAll('section, .studio-section, .templates-section, .pricing-section, .faq-section, .auth-main-wrapper, .site-footer');
+      sections.forEach(sec => {
+        // Tag headings
+        sec.querySelectorAll('h1, h2, h3').forEach((h, idx) => {
+          if (!h.classList.contains('reveal-left') && !h.classList.contains('reveal-right') && !h.classList.contains('reveal-up') && !h.classList.contains('reveal-scale')) {
+            h.classList.add(idx % 2 === 0 ? 'reveal-left' : 'reveal-right');
+            h.classList.add('delay-1');
+          }
+        });
+        // Tag section tags / badges
+        sec.querySelectorAll('.section-tag, .section-tag-sub, .eyebrow-pill').forEach(tag => {
+          if (!tag.classList.contains('reveal-left') && !tag.classList.contains('reveal-right')) {
+            tag.classList.add('reveal-left');
+          }
+        });
+        // Tag paragraphs & subtitles
+        sec.querySelectorAll('.section-header p, .hero-subline, .auth-showcase-desc').forEach(p => {
+          if (!p.classList.contains('reveal-left') && !p.classList.contains('reveal-right')) {
+            p.classList.add('reveal-right');
+            p.classList.add('delay-2');
+          }
+        });
+      });
+
+      const targets = document.querySelectorAll('.reveal-left, .reveal-right, .reveal-up, .reveal-scale');
+      
+      const checkVisibility = () => {
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        targets.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          // If element enters the visible viewport area
+          if (rect.top < vh - 40 && rect.bottom > 40) {
+            el.classList.add('revealed');
+          } else if (rect.top > vh + 100 || rect.bottom < -100) {
+            // Re-arm when scrolled far away, allowing repeatable smooth entrance on scroll
+            el.classList.remove('revealed');
+          }
+        });
+      };
+
+      if ('IntersectionObserver' in window) {
+        if (scrollRevealObserver) scrollRevealObserver.disconnect();
+        
+        scrollRevealObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('revealed');
+            } else {
+              const rect = entry.target.getBoundingClientRect();
+              const vh = window.innerHeight || document.documentElement.clientHeight;
+              if (rect.top > vh + 80 || rect.bottom < -80) {
+                entry.target.classList.remove('revealed');
+              }
+            }
+          });
+        }, {
+          threshold: 0.08,
+          rootMargin: '0px 0px -30px 0px'
+        });
+
+        targets.forEach(el => scrollRevealObserver.observe(el));
+      }
+
+      // Initial checks for visible elements
+      checkVisibility();
+      setTimeout(checkVisibility, 100);
+      setTimeout(checkVisibility, 350);
+      setTimeout(checkVisibility, 700);
+
+      // Throttled scroll listener
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          window.requestAnimationFrame(() => {
+            checkVisibility();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+    }
+
     // Default Gate Initialization: ALWAYS show Login Page FIRST unless session is active
     document.addEventListener('DOMContentLoaded', () => {
       const isAuth = sessionStorage.getItem('stackly_active_auth');
@@ -4379,6 +4469,8 @@
           dash.style.display = 'block';
         }
       }
+      // Initialize scroll-reveal for whichever view is active
+      initScrollReveal();
     });
   </script>
 </body>

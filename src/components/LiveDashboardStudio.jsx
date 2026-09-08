@@ -38,30 +38,82 @@ export default function LiveDashboardStudio({ onOpenReportModal }) {
   const [toastMessage, setToastMessage] = useState(null);
 
   useEffect(() => {
-    const targets = document.querySelectorAll('.reveal-left, .reveal-right, .reveal-up, .reveal-scale');
-    if (!('IntersectionObserver' in window)) {
-      targets.forEach(el => el.classList.add('revealed'));
-      return;
-    }
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('revealed');
-          observer.unobserve(entry.target);
+    // Auto-tag key headings and paragraphs across sections
+    const sections = document.querySelectorAll('section, .studio-section, .templates-section, .pricing-section, .faq-section');
+    sections.forEach(sec => {
+      sec.querySelectorAll('h1, h2, h3').forEach((h, idx) => {
+        if (!h.classList.contains('reveal-left') && !h.classList.contains('reveal-right') && !h.classList.contains('reveal-up') && !h.classList.contains('reveal-scale')) {
+          h.classList.add(idx % 2 === 0 ? 'reveal-left' : 'reveal-right');
+          h.classList.add('delay-1');
         }
       });
-    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
-    targets.forEach(el => observer.observe(el));
+      sec.querySelectorAll('.section-tag, .eyebrow-pill').forEach(tag => {
+        if (!tag.classList.contains('reveal-left') && !tag.classList.contains('reveal-right')) {
+          tag.classList.add('reveal-left');
+        }
+      });
+      sec.querySelectorAll('.section-header p, .hero-subline').forEach(p => {
+        if (!p.classList.contains('reveal-left') && !p.classList.contains('reveal-right')) {
+          p.classList.add('reveal-right');
+          p.classList.add('delay-2');
+        }
+      });
+    });
+
+    const targets = document.querySelectorAll('.reveal-left, .reveal-right, .reveal-up, .reveal-scale');
+    
     const checkViewport = () => {
       const vh = window.innerHeight || document.documentElement.clientHeight;
       targets.forEach(el => {
-        if (el.getBoundingClientRect().top < vh - 30) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < vh - 40 && rect.bottom > 40) {
           el.classList.add('revealed');
+        } else if (rect.top > vh + 100 || rect.bottom < -100) {
+          el.classList.remove('revealed');
         }
       });
     };
+
+    let observer = null;
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('revealed');
+          } else {
+            const rect = entry.target.getBoundingClientRect();
+            const vh = window.innerHeight || document.documentElement.clientHeight;
+            if (rect.top > vh + 80 || rect.bottom < -80) {
+              entry.target.classList.remove('revealed');
+            }
+          }
+        });
+      }, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+      targets.forEach(el => observer.observe(el));
+    }
+
     checkViewport();
-    setTimeout(checkViewport, 150);
+    const t1 = setTimeout(checkViewport, 120);
+    const t2 = setTimeout(checkViewport, 400);
+
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          checkViewport();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      if (observer) observer.disconnect();
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const currentData = timeframeData[selectedTimeframe] || timeframeData['30d'];
