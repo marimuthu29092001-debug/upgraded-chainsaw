@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Stackly Reports & Analytics Dashboard</title>
+  <meta name="description" content="Sign in to your Stackly enterprise analytics account. Access real-time executive reports, ClickHouse columnar queries, and automated intelligence.">
+  <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+  
+  <!-- Fonts from Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       STACKLY MASTER AUTHENTICATION DESIGN SYSTEM
+       ========================================================================== */
+    :root {
+      --bg-primary: transparent;
+      --bg-secondary: rgba(11, 16, 31, 0.65);
+      --bg-surface: rgba(16, 22, 42, 0.70);
+      --bg-surface-glass: rgba(16, 24, 46, 0.75);
+      --bg-card: rgba(17, 25, 48, 0.72);
+      --bg-card-hover: rgba(26, 37, 70, 0.88);
+      
+      --border-subtle: rgba(255, 255, 255, 0.15);
+      --border-medium: rgba(255, 255, 255, 0.28);
+      --border-glow: rgba(255, 255, 255, 0.50);
+      --border-active: #ffffff;
+
+      --text-primary: #ffffff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      --accent-primary: #ffffff;
+      --accent-secondary: #38bdf8;
+      --accent-tertiary: #818cf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+
+      --gradient-brand: linear-gradient(135deg, #ffffff 0%, #38bdf8 50%, #818cf8 100%);
+      --gradient-silver: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+
+      --shadow-sm: 0 4px 14px rgba(0, 0, 0, 0.45);
+      --shadow-md: 0 12px 35px rgba(0, 0, 0, 0.60);
+      --shadow-lg: 0 24px 65px rgba(0, 0, 0, 0.80);
+      --shadow-glow: 0 0 35px rgba(255, 255, 255, 0.25);
+
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --radius-xl: 24px;
+      --radius-full: 9999px;
+
+      --font-heading: 'Outfit', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; height: 100%; }
+    
+    body {
+      font-family: var(--font-body);
+      background-color: transparent !important;
+      background: transparent !important;
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* 100% FIXED, MOTIONLESS SKYSCRAPER BACKGROUND */
+    .fixed-skyscraper-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -10;
+      background-image: 
+        linear-gradient(180deg, 
+          rgba(6, 9, 17, 0.12) 0%, 
+          rgba(6, 9, 17, 0.25) 40%, 
+          rgba(6, 9, 17, 0.50) 80%, 
+          rgba(6, 9, 17, 0.68) 100%
+        ),
+        url('skyscraper_bg.jpg');
+      background-size: cover;
+      background-position: center top;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      pointer-events: none;
+    }
+
+    .ambient-glow-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -9;
+      pointer-events: none;
+      background: 
+        radial-gradient(circle at 20% 25%, rgba(56, 189, 248, 0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 65%, rgba(129, 140, 248, 0.14) 0%, transparent 55%);
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* TOP HEADER */
+    .auth-header {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(6, 9, 17, 0.45);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .auth-header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+    .logo-crest-svg {
+      width: 44px;
+      height: 44px;
+      filter: drop-shadow(0 0 14px rgba(56, 189, 248, 0.4));
+    }
+    .brand-text-block { display: flex; flex-direction: column; }
+    .brand-title {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 1.45rem;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: #ffffff;
+    }
+    .brand-sub {
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.92rem;
+      padding: 0.65rem 1.35rem;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      outline: none;
+    }
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.10);
+      color: #ffffff;
+      border: 1px solid var(--border-medium);
+      backdrop-filter: blur(10px);
+    }
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px);
+    }
+    .btn-primary {
+      background: #ffffff !important;
+      color: #0b0f19 !important;
+      font-weight: 700 !important;
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: 0 0 25px rgba(255, 255, 255, 0.35), 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    .btn-primary:hover {
+      background: #f8fafc !important;
+      color: #000000 !important;
+      box-shadow: 0 0 35px rgba(255, 255, 255, 0.6), 0 8px 25px rgba(0, 0, 0, 0.6);
+      transform: translateY(-2px);
+    }
+    .btn-block {
+      width: 100%;
+      padding: 0.85rem 1.5rem;
+      font-size: 1rem;
+    }
+
+    /* MAIN AUTH CONTENT */
+    .auth-main-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      padding: 3rem 0;
+    }
+    .auth-split-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    /* LEFT SHOWCASE COLUMN */
+    .auth-showcase-col {
+      padding-right: 1rem;
+    }
+    .telemetry-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.35rem 0.9rem;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.32);
+      border-radius: var(--radius-full);
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #38bdf8;
+      margin-bottom: 1.5rem;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 10px #10b981;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .auth-showcase-title {
+      font-family: var(--font-heading);
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1.15;
+      margin-bottom: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+    .gradient-text {
+      background: var(--gradient-brand);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .auth-showcase-desc {
+      font-size: 1.12rem;
+      color: var(--text-secondary);
+      line-height: 1.65;
+      margin-bottom: 2.25rem;
+      max-width: 520px;
+    }
+
+    /* TESTIMONIAL CARD */
+    .auth-quote-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 1.5rem 1.75rem;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2rem;
+    }
+    .quote-text {
+      font-size: 0.98rem;
+      font-style: italic;
+      color: #f1f5f9;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+    .quote-author {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+    .quote-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #38bdf8, #818cf8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #ffffff;
+      border: 1.5px solid rgba(255, 255, 255, 0.4);
+    }
+    .quote-meta { display: flex; flex-direction: column; }
+    .quote-name { font-weight: 700; font-size: 0.92rem; color: #ffffff; }
+    .quote-role { font-size: 0.78rem; color: var(--text-muted); }
+
+    /* TRUST BADGES STRIP */
+    .auth-trust-strip {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .trust-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 0.3rem 0.75rem;
+      border-radius: var(--radius-md);
+    }
+    .trust-icon { color: #10b981; }
+
+    /* RIGHT AUTH CARD COLUMN */
+    .auth-form-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      backdrop-filter: blur(28px);
+      -webkit-backdrop-filter: blur(28px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7), 0 0 35px rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+    .form-header { margin-bottom: 1.75rem; }
+    .form-title {
+      font-family: var(--font-heading);
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 0.35rem;
+      letter-spacing: -0.01em;
+    }
+    .form-subtitle {
+      font-size: 0.92rem;
+      color: var(--text-secondary);
+    }
+    .form-subtitle a {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .form-subtitle a:hover { text-decoration: underline; }
+
+    /* 1-CLICK QUICK DEMO ACCORDION / BUTTONS */
+    .demo-fast-lane {
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px dashed rgba(56, 189, 248, 0.4);
+      border-radius: var(--radius-lg);
+      padding: 1rem 1.15rem;
+      margin-bottom: 1.5rem;
+    }
+    .demo-fast-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #38bdf8;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.65rem;
+    }
+    .demo-btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.65rem;
+    }
+    .demo-pill-btn {
+      background: rgba(16, 24, 46, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-md);
+      padding: 0.55rem 0.75rem;
+      color: #ffffff;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+    .demo-pill-btn:hover {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: #38bdf8;
+      transform: translateY(-1px);
+    }
+
+    /* OAUTH BUTTONS */
+    .oauth-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .oauth-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 0.65rem 1rem;
+      color: #ffffff;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .oauth-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px);
+    }
+    .oauth-icon { width: 18px; height: 18px; flex-shrink: 0; }
+
+    .sso-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.55rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 0.55rem 1rem;
+      color: var(--text-secondary);
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 1.5rem;
+    }
+    .sso-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.09);
+      border-color: var(--border-medium);
+    }
+
+    /* OR DIVIDER */
+    .or-divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 1.35rem 0;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .or-divider::before, .or-divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .or-divider span { padding: 0 0.85rem; }
+
+    /* FORM INPUTS */
+    .form-group {
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .form-label {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      justify-content: space-between;
+    }
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .input-icon-left {
+      position: absolute;
+      left: 1rem;
+      color: var(--text-muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(10, 15, 30, 0.75);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      padding: 0.75rem 1rem 0.75rem 2.85rem;
+      color: #ffffff;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .form-input:focus {
+      border-color: #ffffff;
+      box-shadow: 0 0 16px rgba(255, 255, 255, 0.25);
+      background: rgba(13, 20, 40, 0.92);
+    }
+    .form-input::placeholder { color: #64748b; }
+
+    .input-toggle-right {
+      position: absolute;
+      right: 0.85rem;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      padding: 0.35rem;
+      border-radius: 4px;
+      transition: color 0.2s ease;
+    }
+    .input-toggle-right:hover { color: #ffffff; }
+
+    /* REMEMBER & FORGOT */
+    .form-row-between {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      font-size: 0.84rem;
+    }
+    .custom-checkbox-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      user-select: none;
+    }
+    .custom-checkbox {
+      width: 17px;
+      height: 17px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border-medium);
+      background: rgba(15, 23, 42, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+    .custom-checkbox-wrap input { display: none; }
+    .custom-checkbox-wrap input:checked + .custom-checkbox {
+      background: #38bdf8;
+      border-color: #38bdf8;
+    }
+    .custom-checkbox-wrap input:checked + .custom-checkbox svg {
+      display: block;
+    }
+    .custom-checkbox svg { display: none; }
+
+    .forgot-link {
+      color: #38bdf8;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.2s ease;
+    }
+    .forgot-link:hover { text-decoration: underline; color: #7dd3fc; }
+
+    /* STATUS NOTIFICATIONS */
+    .auth-alert-box {
+      display: none;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-md);
+      font-size: 0.88rem;
+      margin-bottom: 1.25rem;
+      font-weight: 500;
+      align-items: center;
+      gap: 0.65rem;
+    }
+    .auth-alert-box.success {
+      background: rgba(16, 185, 129, 0.18);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #a7f3d0;
+    }
+    .auth-alert-box.error {
+      background: rgba(244, 63, 94, 0.18);
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      color: #fecdd3;
+    }
+
+    /* FOOTER */
+    .auth-footer {
+      padding: 1.5rem 0;
+      border-top: 1px solid var(--border-subtle);
+      background: rgba(6, 9, 17, 0.65);
+      backdrop-filter: blur(12px);
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .auth-footer a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin: 0 0.65rem;
+    }
+    .auth-footer a:hover { color: #ffffff; text-decoration: underline; }
+
+    /* SCROLL-REVEAL ENTRANCE ANIMATIONS */
+    .reveal-left,
+    .reveal-right {
+      opacity: 0;
+      will-change: transform, opacity, filter;
+      transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), 
+                  opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1), 
+                  filter 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal-left {
+      transform: translateX(-70px);
+      filter: blur(8px);
+    }
+    .reveal-right {
+      transform: translateX(70px);
+      filter: blur(8px);
+    }
+    .revealed {
+      opacity: 1 !important;
+      transform: translate(0, 0) !important;
+      filter: blur(0px) !important;
+    }
+
+    /* RESPONSIVE MEDIA QUERIES (FULL MOBILE & DESKTOP SUPPORT) */
+    html, body {
+      overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    @media (max-width: 980px) {
+      .auth-split-grid {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      .auth-showcase-col {
+        padding-right: 0;
+        text-align: center;
+      }
+      .auth-showcase-desc { margin: 0 auto 2rem auto; }
+      .auth-trust-strip { justify-content: center; }
+      .auth-quote-card { text-align: left; }
+    }
+    @media (max-width: 600px) {
+      .auth-form-card { padding: 1.75rem 1.25rem; }
+      .auth-showcase-title { font-size: 2.2rem; }
+      .oauth-row { grid-template-columns: 1fr; }
+      .reveal-left, .reveal-right { transform: translateY(20px); }
+    }
+    @media (max-width: 480px) {
+      .container { padding: 0 0.85rem; }
+      .auth-header-inner {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: center;
+        text-align: center;
+      }
+      .auth-showcase-title { font-size: 1.85rem; }
+      .auth-showcase-desc { font-size: 0.95rem; }
+      .auth-form-card { padding: 1.35rem 1rem; }
+      .form-input { font-size: 16px !important; }
+      .auth-trust-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.4rem;
+      }
+      .auth-footer { font-size: 0.75rem; }
+    }
+    @media (max-width: 360px) {
+      .container { padding: 0 0.65rem; }
+      .auth-trust-strip { grid-template-columns: 1fr; }
+      .auth-showcase-title { font-size: 1.65rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FIXED PARALLAX SKYSCRAPER BACKGROUND -->
+  <div class="fixed-skyscraper-bg"></div>
+  <div class="ambient-glow-layer"></div>
+
+  <!-- TOP HEADER -->
+  <header class="auth-header">
+    <div class="container auth-header-inner">
+      <a href="index.html" class="brand-logo" title="Back to Stackly Dashboard">
+        <!-- Modern Skyscraper Crest Emblem -->
+        <svg class="logo-crest-svg" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="silverTower" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff" />
+              <stop offset="50%" stop-color="#cbd5e1" />
+              <stop offset="100%" stop-color="#64748b" />
+            </linearGradient>
+            <linearGradient id="towerGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#38bdf8" />
+              <stop offset="100%" stop-color="#818cf8" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="40" cy="62" rx="34" ry="9" stroke="url(#silverTower)" stroke-width="3" fill="none" />
+          <polygon points="22,60 22,34 32,26 32,60" fill="url(#silverTower)" opacity="0.85" />
+          <polygon points="34,60 34,16 46,6 46,60" fill="url(#silverTower)" />
+          <polygon points="48,60 48,28 58,36 58,60" fill="url(#silverTower)" opacity="0.9" />
+          <polygon points="18,22 20,15 27,17 22,20 25,27 19,23 14,26 17,19 11,17 18,15" fill="#38bdf8" />
+        </svg>
+        <div class="brand-text-block">
+          <span class="brand-title">Stackly</span>
+          <span class="brand-sub">Reports & Analytics</span>
+        </div>
+      </a>
+
+      <div>
+        <a href="index.html" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+          </svg>
+          <span>Back to Dashboard</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN AUTH WORKSPACE -->
+  <main class="auth-main-wrapper">
+    <div class="container">
+      <div class="auth-split-grid">
+        
+        <!-- LEFT SHOWCASE COLUMN -->
+        <div class="auth-showcase-col reveal-left" id="showcaseCol">
+          <div class="telemetry-pill">
+            <span class="pulse-dot"></span>
+            <span>ClickHouse Columnar 12ms • 14,200 Active Tenants</span>
+          </div>
+
+          <h1 class="auth-showcase-title">
+            Next-Generation <br />
+            <span class="gradient-text">Intelligence Console</span>
+          </h1>
+
+          <p class="auth-showcase-desc">
+            Sign in to unleash unified ARR telemetry, automated board summaries, 
+            and sub-second SQL queries designed for hyper-growth teams.
+          </p>
+
+          <!-- EXECUTIVE QUOTE CARD -->
+          <div class="auth-quote-card">
+            <p class="quote-text">
+              “Stackly transformed our executive decision-making. We cut our quarterly board deck synthesis from 3 weeks to under 14 seconds.”
+            </p>
+            <div class="quote-author">
+              <div class="quote-avatar">ER</div>
+              <div class="quote-meta">
+                <span class="quote-name">Elena Rostova</span>
+                <span class="quote-role">VP Analytics & Operations • Vercel Partner</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- TRUST BADGES STRIP -->
+          <div class="auth-trust-strip">
+            <span class="trust-tag">
+              <span class="trust-icon">✓</span> SOC-2 Type II Certified
+            </span>
+            <span class="trust-tag">
+              <span class="trust-icon">✓</span> 256-Bit SSL Encryption
+            </span>
+            <span class="trust-tag">
+              <span class="trust-icon">✓</span> HIPAA & GDPR Ready
+            </span>
+            <span class="trust-tag">
+              <span class="trust-icon">✓</span> 99.99% SLA Uptime
+            </span>
+          </div>
+        </div>
+
+        <!-- RIGHT AUTH FORM COLUMN -->
+        <div class="auth-form-card reveal-right" id="formCard">
+          <div class="form-header">
+            <h2 class="form-title">Sign in to your account</h2>
+            <p class="form-subtitle">
+              New to Stackly? <a href="index.html#pricing">Start 14-day free trial</a>
+            </p>
+          </div>
+
+          <!-- SOCIAL LOGINS -->
+          <div class="oauth-row">
+            <button type="button" onclick="simulateOAuth('Google')" class="oauth-btn">
+              <!-- Google G Logo -->
+              <svg class="oauth-icon" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+              </svg>
+              <span>Google</span>
+            </button>
+
+            <button type="button" onclick="simulateOAuth('GitHub')" class="oauth-btn">
+              <!-- GitHub Octocat -->
+              <svg class="oauth-icon" fill="currentColor" viewBox="0 0 24 24">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              <span>GitHub</span>
+            </button>
+          </div>
+
+          <button type="button" onclick="simulateOAuth('Enterprise SSO')" class="sso-btn">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Single Sign-On (SAML / Okta / Azure AD)</span>
+          </button>
+
+          <div class="or-divider">
+            <span>Or continue with work email</span>
+          </div>
+
+          <!-- NOTIFICATION FEEDBACK BOX -->
+          <div id="authAlert" class="auth-alert-box">
+            <span id="alertIcon">✓</span>
+            <span id="alertMessage">Authenticated successfully!</span>
+          </div>
+
+          <!-- SIGN IN FORM -->
+          <form id="signInForm" onsubmit="handleAuthSubmit(event)">
+            <!-- Email -->
+            <div class="form-group">
+              <label class="form-label" for="userEmail">Work Email</label>
+              <div class="input-wrapper">
+                <span class="input-icon-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                </span>
+                <input 
+                  type="email" 
+                  id="userEmail" 
+                  class="form-input" 
+                  placeholder="alex.morgan@company.com" 
+                  required 
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+              <div class="form-label">
+                <label for="userPassword">Password</label>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-icon-left">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                </span>
+                <input 
+                  type="password" 
+                  id="userPassword" 
+                  class="form-input" 
+                  placeholder="••••••••••••" 
+                  required 
+                  autocomplete="current-password"
+                />
+                <button 
+                  type="button" 
+                  id="togglePasswordBtn" 
+                  class="input-toggle-right" 
+                  onclick="togglePasswordVisibility()" 
+                  title="Toggle Password Visibility"
+                >
+                  <!-- Eye icon -->
+                  <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Remember Me & Forgot Password -->
+            <div class="form-row-between">
+              <label class="custom-checkbox-wrap">
+                <input type="checkbox" id="rememberMe" checked />
+                <span class="custom-checkbox">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </span>
+                <span>Remember this device (30 days)</span>
+              </label>
+
+              <a href="javascript:void(0)" onclick="triggerForgotModal()" class="forgot-link">
+                Forgot password?
+              </a>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="submitSignInBtn" class="btn btn-primary btn-block">
+              <span>Sign In to Dashboard</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- BOTTOM FOOTER -->
+  <footer class="auth-footer">
+    <div class="container">
+      <span>© 2026 Stackly Data Inc. Enterprise Security Architecture.</span>
+      <span style="margin: 0 0.5rem;">•</span>
+      <a href="index.html#features">Features</a>
+      <a href="index.html#templates">Templates</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#faq">Security & Compliance</a>
+    </div>
+  </footer>
+
+  <!-- ==========================================================================
+       AUTHENTICATION INTERACTIVE SCRIPTS
+       ========================================================================== -->
+  <script>
+    // Reveal Entrance on Load
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const left = document.getElementById('showcaseCol');
+        const right = document.getElementById('formCard');
+        if (left) left.classList.add('revealed');
+        if (right) right.classList.add('revealed');
+      }, 80);
+    });
+
+    // Password Visibility Toggle
+    function togglePasswordVisibility() {
+      const pwdInput = document.getElementById('userPassword');
+      const eyeIcon = document.getElementById('eyeIcon');
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        // Eye-off icon
+        eyeIcon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+        `;
+      } else {
+        pwdInput.type = 'password';
+        // Eye icon
+        eyeIcon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+          <circle cx="12" cy="12" r="3"></circle>
+        `;
+      }
+    }
+
+    // Alert Banner Helper
+    function showAlert(msg, type) {
+      const box = document.getElementById('authAlert');
+      const msgSpan = document.getElementById('alertMessage');
+      const iconSpan = document.getElementById('alertIcon');
+      
+      box.className = `auth-alert-box ${type}`;
+      box.style.display = 'flex';
+      msgSpan.innerText = msg;
+      iconSpan.innerText = type === 'success' ? '✓' : '⚠️';
+    }
+
+    // Handle Form Submit
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('userEmail').value.trim();
+      const pwd = document.getElementById('userPassword').value.trim();
+      const btn = document.getElementById('submitSignInBtn');
+
+      if (!email || !pwd) {
+        showAlert('Please provide both work email and password.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = `
+        <svg style="animation: spin 1s linear infinite; width: 18px; height: 18px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
+          <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
+        </svg>
+        <span>Verifying session credentials...</span>
+      `;
+
+      setTimeout(() => {
+        btn.innerHTML = `
+          <span>✓ Session Granted</span>
+        `;
+        showAlert(`Welcome back, ${email.split('@')[0]}! Directing to Live Studio...`, 'success');
+
+        localStorage.setItem('stackly_user', JSON.stringify({
+          email: email,
+          name: email.split('@')[0],
+          role: email.includes('chen') ? 'Lead Data Engineer' : 'VP Executive Analytics',
+          loggedInAt: new Date().toISOString()
+        }));
+        sessionStorage.setItem('stackly_active_auth', 'true');
+        localStorage.setItem('stackly_active_auth', 'true');
+
+        setTimeout(() => {
+          window.location.href = 'index.html#live-dashboard';
+        }, 1100);
+      }, 1000);
+    }
+
+    // Simulate OAuth / SSO
+    function simulateOAuth(provider) {
+      showAlert(`Connecting securely to ${provider} Enterprise IdP...`, 'success');
+      
+      setTimeout(() => {
+        showAlert(`Authenticated via ${provider}! Redirecting to Live Studio...`, 'success');
+        localStorage.setItem('stackly_user', JSON.stringify({
+          email: `verified.${provider.toLowerCase().replace(/[^a-z]/g, '')}@stackly.io`,
+          name: `${provider} Verified User`,
+          provider: provider,
+          loggedInAt: new Date().toISOString()
+        }));
+        sessionStorage.setItem('stackly_active_auth', 'true');
+        localStorage.setItem('stackly_active_auth', 'true');
+
+        setTimeout(() => {
+          window.location.href = 'index.html#live-dashboard';
+        }, 1100);
+      }, 1200);
+    }
+
+    // Trigger Forgot Modal
+    function triggerForgotModal() {
+      const email = prompt('Enter your work email for a single-use Magic Login Link:', 'alex.morgan@stackly.io');
+      if (email) {
+        showAlert(`Password reset & magic link dispatched to ${email}.`, 'success');
+      }
+    }
+  </script>
+
+  <style>
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+
+</body>
+</html>
